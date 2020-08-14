@@ -7,10 +7,10 @@
   #   - "vars/fromTerraform.yml"
   #   - "vars/creds.json"
 
-  # vars:
-  #   listVsName: []
-  #   listPoolName: []
-  #   listVsVip: []
+  vars:
+    listVsName: []
+    listPoolName: []
+    listVsVip: []
 
   roles:
     - role: "avinetworks.avisdk"
@@ -67,10 +67,19 @@
       tags:
         - debug
 
+    - name: Append Vs name to the list
+      set_fact:
+        listVsName: "{{ listVsName }} + [ '{{ item.name }}' ]"
+      loop: "{{ virtualserviceResults.obj.results }}"
+      loop_control:
+       label: "{{ item.name }}"
+      tags:
+        - debug
+
     - name: Debug
       debug:
-        msg: "{{ item.name }}"
-      loop: "{{ virtualserviceResults.obj.results }}"
+        msg: "{{ item }}"
+      loop: "{{ listVsName }}"
       tags:
         - debug
 
@@ -78,14 +87,14 @@
       avi_virtualservice:
         avi_credentials: "{{ avi_credentials }}"
         api_version: "{{ avi_credentials.api_version }}"
-        name: "{{ item.name }}"
+        name: "{{ item }}"
         state: absent
         cloud_ref: "/api/cloud/?name={{ avi_cloud.name }}"
         tenant_ref: "/api/tenant?name={{ item.tenant_ref | default('admin') }}"
         tenant: "{{ item.tenant_ref | default('admin') }}"
-      loop: "{{ virtualserviceResults.obj.results }}"
+      loop: "{{ listVsName }}"
       loop_control:
-        label: "{{ item.name }}"
+        label: "{{ item }}"
 
 
     - name: get vsvip
@@ -99,10 +108,19 @@
       tags:
         - debug
 
+    - name: Append Vsvip name to the list
+      set_fact:
+        listVsVip: "{{ listVsVip }} + [ '{{ item.name }}' ]"
+      loop: "{{ vsvipResults.obj.results }}"
+      loop_control:
+       label: "{{ item.name }}"
+      tags:
+        - debug
+
     - name: Debug
       debug:
-        msg: "{{ item.name }}"
-      loop: "{{ vsvipResults.obj.results }}"
+        msg: "{{ item }}"
+      loop: "{{ listVsVip }}"
       tags:
         - debug
 
@@ -110,14 +128,14 @@
       avi_vsvip:
         avi_credentials: "{{ avi_credentials }}"
         api_version: "{{ avi_credentials.api_version }}"
-        name: "{{ item.name }}"
+        name: "{{ item }}"
         state: absent
         cloud_ref: "/api/cloud/?name={{ avi_cloud.name }}"
         tenant_ref: "/api/tenant?name={{ item.tenant_ref | default('admin') }}"
         tenant: "{{ item.tenant_ref | default('admin') }}"
-      loop: "{{ vsvipResults.obj.results }}"
+      loop: "{{ listVsVip }}"
       loop_control:
-        label: "{{ item.name }}"
+        label: "{{ item }}"
 
     - name: get pools
       avi_api_session:
@@ -128,18 +146,25 @@
         path: pool
       register: poolResults
 
+    - name: Append Pool name to the list
+      set_fact:
+        listPoolName: "{{ listPoolName }} + [ '{{ item.name }}' ]"
+      loop: "{{ poolResults.obj.results }}"
+      loop_control:
+       label: "{{ item.name }}"
+
     - name: Delete pool
       avi_pool:
         avi_credentials: "{{ avi_credentials }}"
         api_version: "{{ avi_credentials.api_version }}"
-        name: "{{ item.name }}"
+        name: "{{ item }}"
         cloud_ref: "/api/cloud/?name={{ avi_cloud.name }}"
         tenant: "{{ item.tenant_ref | default('admin') }}"
         tenant_ref: "/api/tenant?name={{ item.tenant_ref | default('admin') }}"
         state: absent
-      loop: "{{ poolResults.obj.results }}"
+      loop: "{{ listPoolName }}"
       loop_control:
-        label: "{{ item.name }}"
+        label: "{{ item }}"
 
     - name: Get SE list
       avi_api_session:
