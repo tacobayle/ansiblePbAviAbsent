@@ -3,9 +3,9 @@
   connection: local
   gather_facts: no
 
-  vars_files:
-    - "vars/fromTerraform.yml"
-    - "vars/creds.json"
+  # vars_files:
+  #   - "vars/fromTerraform.yml"
+  #   - "vars/creds.json"
 
   # vars:
   #   listVsName: []
