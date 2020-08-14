@@ -42,7 +42,7 @@ europe-north1
 
 ## Input/Parameters:
 
-- Make sure to import the following credential variable:
+- Make sure to import the following credential variables:
 ```
 {"avi_credentials": {"username": "admin", "controller": "172.16.1.5", "password": "Avi_2019", "api_version": "17.2.14"}, "avi_cluster": false}
 ```
