@@ -1,69 +1,63 @@
 # aviGcp
 
 ## Goals
-Spin up a full Gcp/Avi environment (through Terraform and Ansible)
+Destroy Avi Objects (vs, vsvip, pool, se, segroup, cloud)
 
 ## Prerequisites:
-1. Make sure terraform in installed in the orchestrator VM
-2. Make sure GCP credential/details are configured as environment variable:
+1. Make sure ansible is installed
+2. Make sure avisdk is installed:
 ```
-GOOGLE_CLOUD_KEYFILE_JSON=**************
+pip install avisdk
+ansible-galaxy install -f avinetworks.avisdk
 ```
+3. Make sure your ansible host can reach your Avi controller
 
 ## Environment:
 
 Terraform tf and Playbook(s) has/have been tested against:
 
-### terraform
+### Ansible
 
 ```
-avi@ansible:~$ terraform -v
-Terraform v0.12.21
-
-Your version of Terraform is out of date! The latest version
-is 0.12.26. You can update by downloading from https://www.terraform.io/downloads.html
-avi@ansible:~$
+avi@ansible:~/ansible/aviLscCloud$ ansible --version
+ansible 2.9.5
+  config file = /etc/ansible/ansible.cfg
+  configured module search path = [u'/home/avi/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']
+  ansible python module location = /home/avi/.local/lib/python2.7/site-packages/ansible
+  executable location = /home/avi/.local/bin/ansible
+  python version = 2.7.12 (default, Oct  8 2019, 14:14:10) [GCC 5.4.0 20160609]
+avi@ansible:~/ansible/aviLscCloud$
 ```
 
 ### Avi version
 
 ```
-18.2.9
+Avi 20.1.1
+avisdk 18.2.9
 ```
 
-### GCP Region:
+### Avi environment
 
 europe-north1
 
 ## Input/Parameters:
 
-1. All the paramaters/variables are stored in variables.tf
-
-## Use the the terraform script to:
-1. Create the VPC and subnets
-2. Spin up 3 backend servers (second subnet) across the 3 zones - no NAT public IP
-3. Spin up a jump server with ansible in the mgt subnet (first subnet) - NAT Public IP
-4. Transfer GCP ansible files to the jump server
-5. Create a GCP storage bucket
-5. Download the Avi image to the jump server (via Ansible)
-6. Upload the Avi image to the bucket (via Ansible)
-7. Create an GCP image (via Ansible)
-8. Remove avi controller object from the GCP bucket (does not work)
-9. Spin up an Avi controller (in the first subnet)
-10. Transfer Avi ansible files to the jump server including Ansible hosts
-11. Wait for Avi controller to be ready
-12. Bootstrap Avi Controller (password update)
-13. Configure System config
-14. Create IPAM/DNS profile (Avi based)
-15. Create a new GCP cloud (with Avi IPAM/DNS create before)
-16. Create/Update SE Group (a new one ffor GSLB)
-17. Create health monitor, create pool, create VS
-
-## Run the terraform:
+- Make sure vars/creds.json is defined properly
 ```
-terraform apply -auto-approve
-# the terraform will output the command to destroy the environment.
+{"avi_credentials": {"username": "admin", "controller": "172.16.1.5", "password": "Avi_2019", "api_version": "17.2.14"}, "avi_cluster": false}
+```
+
+## Use the the ansible playbook to:
+- delete all the gslbservices
+- delete all the vs
+- delete all the vsvip
+- delete all the pools
+- delete all the se
+- delete all the segroup (except Default-Group)
+- delete the cloud name defined as avi_cloud.name
+
+## Run the playbook:
+```
 ```
 
 ### future devlopment:
-- Handle a controller cluster use case (multi AZ)
