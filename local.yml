@@ -23,6 +23,11 @@
       tags:
         - debug
 
+    - name: Debug
+      debug:
+        msg: "{{ avi_cloud.name }}"
+      tags:
+        - debug
 
     - name: Get GSLB list
       avi_api_session:
