@@ -42,9 +42,13 @@ europe-north1
 
 ## Input/Parameters:
 
-- Make sure vars/creds.json is defined properly
+- Make sure to import the following credential variable:
 ```
 {"avi_credentials": {"username": "admin", "controller": "172.16.1.5", "password": "Avi_2019", "api_version": "17.2.14"}, "avi_cluster": false}
+```
+- Make sure to import the cloud name to be destroyed:
+```
+{"avi_cloud": {"name": "xxxx"}}
 ```
 
 ## Use the the ansible playbook to:
@@ -58,6 +62,7 @@ europe-north1
 
 ## Run the playbook:
 ```
+ansible-pull --url https://github.com/tacobayle/ansiblePbAviAbsent --extra-vars @~/ansible/vars/fromTerraform.yml --extra-vars @~/ansible/vars/creds.json
 ```
 
 ### future devlopment:
