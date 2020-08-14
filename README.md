@@ -1,7 +1,7 @@
 # aviGcp
 
 ## Goals
-Destroy Avi Objects (vs, vsvip, pool, se, segroup, cloud)
+Destroy Avi Objects (vsgslb, vs, vsvip, pool, se, segroup, cloud)
 
 ## Prerequisites:
 1. Make sure ansible is installed
