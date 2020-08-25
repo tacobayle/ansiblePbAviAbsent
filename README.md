@@ -38,7 +38,9 @@ avisdk 18.2.9
 
 ### Avi environment
 
-europe-north1
+- AWS
+- GCP
+- VMware (wo NSX)
 
 ## Input/Parameters:
 
@@ -58,7 +60,7 @@ europe-north1
 - delete all the pools
 - delete all the se
 - delete all the segroup (except Default-Group)
-- delete the cloud name defined as avi_cloud.name
+- delete the cloud name defined as avi_cloud.name (ignore error for VMware as the cloud does not seem to delete)
 
 ## Run the playbook:
 ```

@@ -222,6 +222,16 @@
         label: "Modifying SE group called {{ item.name }}"
       when: item.name != "Default-Group"
 
+    - name: "Revert cloud to No Access"
+      avi_cloud:
+        avi_credentials: "{{ avi_credentials | default(omit) }}"
+        api_version: "{{ avi_credentials.api_version }}"
+        name: "{{ avi_cloud.name }}"
+        vtype: CLOUD_NONE
+      when:
+        - avi_cloud is defined
+        - avi_cloud.vtype == "CLOUD_VCENTER"
+
     - name: Pausing for 20 seconds
       pause:
         seconds: 20
