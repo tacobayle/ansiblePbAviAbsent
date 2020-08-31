@@ -44,6 +44,13 @@
       tags:
         - debug
 
+    - name: Debug
+      debug:
+        msg: "{{ item.uuid }}"
+      loop: "{{ gslbserviceResults.obj.results }}"
+      tags:
+        - debug
+
     - name: Delete GSLB service (dns)
       avi_gslbservice:
         avi_credentials: "{{ avi_credentials }}"
