@@ -55,6 +55,8 @@ avisdk 18.2.9
 
 ## Use the the ansible playbook to:
 - delete all the gslbservices
+- delete all the gslb geo gslbGeoProfile
+- delete all the gslb infra configuration
 - delete all the vs
 - delete all the vsvip
 - delete all the pools
