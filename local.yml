@@ -7,10 +7,10 @@
   #   - "vars/fromTerraform.yml"
   #   - "vars/creds.json"
 
-  vars:
-    listVsName: []
-    listPoolName: []
-    listVsVip: []
+  # vars:
+  #   listVsName: []
+  #   listPoolName: []
+  #   listVsVip: []
 
   roles:
     - role: "avinetworks.avisdk"
