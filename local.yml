@@ -49,6 +49,7 @@
         avi_credentials: "{{ avi_credentials }}"
         api_version: "{{ avi_credentials.api_version }}"
         name: "{{ item.name }}"
+        uuid: "{{ item.uuid }}"
         state: absent
         tenant_ref: "/api/tenant?name={{ item.tenant_ref | default('admin') }}"
         tenant: "{{ item.tenant_ref | default('admin') }}"
