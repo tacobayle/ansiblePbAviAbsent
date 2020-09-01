@@ -88,6 +88,30 @@
         path: '{{"gslb/" + item.uuid }}'
       loop: "{{ gslbResults.obj.results }}"
 
+
+    - name: get DNS VS used by system
+      avi_api_session:
+        avi_credentials: "{{ avi_credentials }}"
+        api_version: "{{ avi_credentials.api_version }}"
+        http_method: get
+        timeout: 300
+        path: systemconfiguration
+      register: systemconfigurationOutput
+
+    - name: Debug
+      debug:
+        msg: "{{ systemconfigurationOutput.obj.dns_virtualservice_refs }}"
+
+    - name: Delete DNS VS used by system in systemconfiguration
+      avi_api_session:
+        avi_credentials: "{{ avi_credentials }}"
+        api_version: "{{ avi_credentials.api_version }}"
+        http_method: patch
+        timeout: 300
+        path: systemconfiguration
+        data: {"delete":{"dns_virtualservice_refs":["{{ item }}"]}}
+      loop: "{{ systemconfigurationOutput.obj.dns_virtualservice_refs }}"
+
     - name: get VS
       avi_api_session:
         avi_credentials: "{{ avi_credentials }}"
