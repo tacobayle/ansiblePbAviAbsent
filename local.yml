@@ -101,6 +101,7 @@
     - name: Debug
       debug:
         msg: "{{ systemconfigurationOutput.obj.dns_virtualservice_refs }}"
+      when: systemconfigurationOutput.obj.dns_virtualservice_refs is defined
 
     - name: Delete DNS VS used by system in systemconfiguration
       avi_api_session:
@@ -111,6 +112,7 @@
         path: systemconfiguration
         data: {"delete":{"dns_virtualservice_refs":["{{ item }}"]}}
       loop: "{{ systemconfigurationOutput.obj.dns_virtualservice_refs }}"
+      when: systemconfigurationOutput.obj.dns_virtualservice_refs is defined
 
     - name: get VS
       avi_api_session:
