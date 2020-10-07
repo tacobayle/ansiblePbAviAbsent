@@ -401,6 +401,8 @@
         http_method: "delete"
         path: '{{"cloud/" + item.uuid }}'
       loop: "{{ cloudResults.obj.results }}"
+      when: item.name != "Default-Cloud"
+
 
     # - name: Delete Avi Cloud
     #   avi_cloud:
