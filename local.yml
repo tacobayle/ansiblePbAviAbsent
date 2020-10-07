@@ -23,12 +23,6 @@
       tags:
         - debug
 
-    - name: Debug
-      debug:
-        msg: "{{ avi_cloud.name }}"
-      tags:
-        - debug
-
     - name: Get GSLB list
       avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
@@ -334,8 +328,7 @@
         name: "{{ avi_cloud.name }}"
         vtype: CLOUD_NONE
       when:
-        - avi_cloud is defined
-        - avi_cloud.vtype == "CLOUD_VCENTER" or avi_cloud.vtype == "CLOUD_NSXT"
+        - vmw is defined or nsxt is defined
 
     - name: Delete Avi IPAM
       avi_ipamdnsproviderprofile:
@@ -345,7 +338,7 @@
         type: IPAMDNS_TYPE_INTERNAL
         state: absent
       when:
-        - avi_cloud.vtype == "CLOUD_VCENTER" or avi_cloud.vtype == "CLOUD_NSXT"
+        - vmw is defined or nsxt is defined
 
     - name: "Discover remaining configured networks"
       avi_api_session:
@@ -355,8 +348,7 @@
         path: '{{ "network/?cloud_ref.name=" + avi_cloud.name }}'
       register: networks
       when:
-        - avi_cloud.vtype == "CLOUD_VCENTER" or avi_cloud.vtype == "CLOUD_NSXT"
-        - avi_cloud is defined
+        - vmw is defined or nsxt is defined
 
     - name: "Delete configured networks"
       avi_api_session:
@@ -366,8 +358,7 @@
         path: '{{"network/" + item.uuid }}'
       loop: "{{ networks.obj.results }}"
       when:
-        - avi_cloud.vtype == "CLOUD_VCENTER" or avi_cloud.vtype == "CLOUD_NSXT"
-        - avi_cloud is defined
+        - vmw is defined or nsxt is defined
 
     - name: Delete Network Vip Placement
       avi_network:
@@ -379,8 +370,7 @@
         state: absent
       when:
         - avi_network_vip is defined
-        - avi_cloud.vtype == "CLOUD_VCENTER" or avi_cloud.vtype == "CLOUD_NSXT"
-        - avi_cloud is defined
+        - vmw is defined or nsxt is defined
 
     - name: Pausing for 20 seconds
       pause:
