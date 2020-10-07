@@ -386,13 +386,29 @@
       pause:
         seconds: 20
 
-    - name: Delete Avi Cloud
-      avi_cloud:
+    - name: Get Clouds list
+      avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
-        name: "{{ avi_cloud.name }}"
-        state: absent
-        vtype: "{{ avi_cloud.vtype }}"
-      when: avi_cloud is defined
-      tags: cloud
-      ignore_errors: yes
+        http_method: get
+        path: cloud
+      register: cloudResults
+
+    - name: "Delete clouds"
+      avi_api_session:
+        avi_credentials: "{{ avi_credentials | default(omit) }}"
+        api_context: "{{ avi_api_context | default(omit) }}"
+        http_method: "delete"
+        path: '{{"cloud/" + item.uuid }}'
+      loop: "{{ cloudResults.obj.results }}"
+
+    # - name: Delete Avi Cloud
+    #   avi_cloud:
+    #     avi_credentials: "{{ avi_credentials | default(omit) }}"
+    #     api_context: "{{ avi_api_context | default(omit) }}"
+    #     name: "{{ avi_cloud.name }}"
+    #     state: absent
+    #     vtype: "{{ avi_cloud.vtype }}"
+    #   when: avi_cloud is defined
+    #   tags: cloud
+    #   ignore_errors: yes
