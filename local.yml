@@ -359,6 +359,16 @@
       when:
         - vmw is defined
 
+    - name: Delete configured networks (for vmw)
+      avi_api_session:
+        avi_credentials: "{{ avi_credentials | default(omit) }}"
+        api_context: "{{ avi_api_context | default(omit) }}"
+        http_method: "delete"
+        path: '{{"network/" + item.uuid }}'
+      loop: "{{ networks.obj.results }}"
+      when:
+        - vmw is defined or nsxt is defined
+
     - name: Discover remaining configured networks (for nsxt)
       avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
@@ -369,7 +379,7 @@
       when:
         - nsxt is defined
 
-    - name: "Delete configured networks"
+    - name: Delete configured networks (for nsxt)
       avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
@@ -377,31 +387,34 @@
         path: '{{"network/" + item.uuid }}'
       loop: "{{ networks.obj.results }}"
       when:
-        - vmw is defined or nsxt is defined
-
-    - name: Delete Network Vip Placement (for vmw)
-      avi_network:
-        avi_credentials: "{{ avi_credentials | default(omit) }}"
-        api_context: "{{ avi_api_context | default(omit) }}"
-        cloud_ref: "/api/cloud/?name={{ vmw.name }}"
-        tenant_ref: "/api/tenant?name={{ item.tenant_ref | default('admin') }}"
-        name: "{{ avi_network_vip.name }}"
-        state: absent
-      when:
-        - avi_network_vip is defined
-        - vmw is defined
-
-    - name: Delete Network Vip Placement (for nsxt)
-      avi_network:
-        avi_credentials: "{{ avi_credentials | default(omit) }}"
-        api_context: "{{ avi_api_context | default(omit) }}"
-        cloud_ref: "/api/cloud/?name={{ vmw.name }}"
-        tenant_ref: "/api/tenant?name={{ item.tenant_ref | default('admin') }}"
-        name: "{{ avi_network_vip.name }}"
-        state: absent
-      when:
-        - avi_network_vip is defined
         - nsxt is defined
+
+
+    #
+    #
+    # - name: Delete Network Vip Placement (for vmw)
+    #   avi_network:
+    #     avi_credentials: "{{ avi_credentials | default(omit) }}"
+    #     api_context: "{{ avi_api_context | default(omit) }}"
+    #     cloud_ref: "/api/cloud/?name={{ vmw.name }}"
+    #     tenant_ref: "/api/tenant?name={{ item.tenant_ref | default('admin') }}"
+    #     name: "{{ avi_network_vip.name }}"
+    #     state: absent
+    #   when:
+    #     - avi_network_vip is defined
+    #     - vmw is defined
+    #
+    # - name: Delete Network Vip Placement (for nsxt)
+    #   avi_network:
+    #     avi_credentials: "{{ avi_credentials | default(omit) }}"
+    #     api_context: "{{ avi_api_context | default(omit) }}"
+    #     cloud_ref: "/api/cloud/?name={{ vmw.name }}"
+    #     tenant_ref: "/api/tenant?name={{ item.tenant_ref | default('admin') }}"
+    #     name: "{{ avi_network_vip.name }}"
+    #     state: absent
+    #   when:
+    #     - avi_network_vip is defined
+    #     - nsxt is defined
 
     - name: Pausing for 20 seconds
       pause:
