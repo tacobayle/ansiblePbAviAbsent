@@ -346,7 +346,7 @@
         name: "{{ ipam.name | default('ipam-avi') }}"
         type: IPAMDNS_TYPE_INTERNAL
         state: absent
-        ignore_errors: yes
+      ignore_errors: yes
 
     - name: Discover remaining configured networks
       avi_api_session:
