@@ -3,15 +3,6 @@
   connection: local
   gather_facts: no
 
-  # vars_files:
-  #   - "vars/fromTerraform.yml"
-  #   - "vars/creds.json"
-
-  # vars:
-  #   listVsName: []
-  #   listPoolName: []
-  #   listVsVip: []
-
   roles:
     - role: "avinetworks.avisdk"
 
@@ -30,22 +21,9 @@
         http_method: get
         path: gslbservice
       register: gslbserviceResults
+      ignore_errors: yes
 
-    # - name: Debug
-    #   debug:
-    #     msg: "{{ item.name }}"
-    #   loop: "{{ gslbserviceResults.obj.results }}"
-    #   tags:
-    #     - debug
-    #
-    # - name: Debug
-    #   debug:
-    #     msg: "{{ item.uuid }}"
-    #   loop: "{{ gslbserviceResults.obj.results }}"
-    #   tags:
-    #     - debug
-
-    - name: "Delete Glsb services - it may fails if not executed in the leader cluster"
+    - name: Delete Glsb services - it may fails if not executed in the leader cluster
       avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
@@ -53,16 +31,18 @@
         path: '{{"gslbservice/" + item.uuid }}'
       ignore_errors: yes
       loop: "{{ gslbserviceResults.obj.results }}"
+      ignore_errors: yes
 
-    - name: "Get GSLB list"
+    - name: Get GSLB profile
       avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: get
         path: gslbgeodbprofile
       register: gslbgeodbprofileResults
+      ignore_errors: yes
 
-    - name: "Delete Glsb Geo profile - it may fails if not executed in the leader cluster"
+    - name: Delete Glsb Geo profile - it may fails if not executed in the leader cluster
       avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
@@ -70,16 +50,18 @@
         path: '{{"gslbgeodbprofile/" + item.uuid }}'
       ignore_errors: yes
       loop: "{{ gslbgeodbprofileResults.obj.results }}"
+      ignore_errors: yes
 
-    - name: "Get GSLB config"
+    - name: Get GSLB config
       avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: get
         path: gslb
       register: gslbResults
+      ignore_errors: yes
 
-    - name: "Delete Glsb config - it may fails if not executed in the leader cluster"
+    - name: Delete Glsb config - it may fails if not executed in the leader cluster
       avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
@@ -87,7 +69,7 @@
         path: '{{"gslb/" + item.uuid }}'
       ignore_errors: yes
       loop: "{{ gslbResults.obj.results }}"
-
+      ignore_errors: yes
 
     - name: get DNS VS used by system
       avi_api_session:
@@ -97,11 +79,7 @@
         timeout: 300
         path: systemconfiguration
       register: systemconfigurationOutput
-
-    - name: Debug
-      debug:
-        msg: "{{ systemconfigurationOutput.obj.dns_virtualservice_refs }}"
-      when: systemconfigurationOutput.obj.dns_virtualservice_refs is defined
+      ignore_errors: yes
 
     - name: Delete DNS VS used by system in systemconfiguration
       avi_api_session:
@@ -113,6 +91,7 @@
         data: {"delete":{"dns_virtualservice_refs":["{{ item }}"]}}
       loop: "{{ systemconfigurationOutput.obj.dns_virtualservice_refs }}"
       when: systemconfigurationOutput.obj.dns_virtualservice_refs is defined
+      ignore_errors: yes
 
     - name: get VS
       avi_api_session:
@@ -122,46 +101,16 @@
         timeout: 300
         path: virtualservice
       register: virtualserviceResults
-      tags:
-        - debug
+      ignore_errors: yes
 
-    - name: "Delete vs config"
+    - name: Delete vs config
       avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: "delete"
         path: '{{"virtualservice/" + item.uuid }}'
       loop: "{{ virtualserviceResults.obj.results }}"
-
-    # - name: Append Vs name to the list
-    #   set_fact:
-    #     listVsName: "{{ listVsName }} + [ '{{ item.name }}' ]"
-    #   loop: "{{ virtualserviceResults.obj.results }}"
-    #   loop_control:
-    #    label: "{{ item.name }}"
-    #   tags:
-    #     - debug
-    #
-    # - name: Debug
-    #   debug:
-    #     msg: "{{ item }}"
-    #   loop: "{{ listVsName }}"
-    #   tags:
-    #     - debug
-    #
-    # - name: Delete Virtualservice
-    #   avi_virtualservice:
-    #     avi_credentials: "{{ avi_credentials }}"
-    #     api_version: "{{ avi_credentials.api_version }}"
-    #     name: "{{ item }}"
-    #     state: absent
-    #     cloud_ref: "/api/cloud/?name={{ avi_cloud.name }}"
-    #     tenant_ref: "/api/tenant?name={{ item.tenant_ref | default('admin') }}"
-    #     tenant: "{{ item.tenant_ref | default('admin') }}"
-    #   loop: "{{ listVsName }}"
-    #   loop_control:
-    #     label: "{{ item }}"
-
+      ignore_errors: yes
 
     - name: get vsvip
       avi_api_session:
@@ -171,45 +120,16 @@
         timeout: 300
         path: vsvip
       register: vsvipResults
-      tags:
-        - debug
+      ignore_errors: yes
 
-    - name: "Delete vsvip config"
+    - name: Delete vsvip config
       avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: "delete"
         path: '{{"vsvip/" + item.uuid }}'
       loop: "{{ vsvipResults.obj.results }}"
-
-    # - name: Append Vsvip name to the list
-    #   set_fact:
-    #     listVsVip: "{{ listVsVip }} + [ '{{ item.name }}' ]"
-    #   loop: "{{ vsvipResults.obj.results }}"
-    #   loop_control:
-    #    label: "{{ item.name }}"
-    #   tags:
-    #     - debug
-    #
-    # - name: Debug
-    #   debug:
-    #     msg: "{{ item }}"
-    #   loop: "{{ listVsVip }}"
-    #   tags:
-    #     - debug
-    #
-    # - name: Delete VsVip
-    #   avi_vsvip:
-    #     avi_credentials: "{{ avi_credentials }}"
-    #     api_version: "{{ avi_credentials.api_version }}"
-    #     name: "{{ item }}"
-    #     state: absent
-    #     cloud_ref: "/api/cloud/?name={{ avi_cloud.name }}"
-    #     tenant_ref: "/api/tenant?name={{ item.tenant_ref | default('admin') }}"
-    #     tenant: "{{ item.tenant_ref | default('admin') }}"
-    #   loop: "{{ listVsVip }}"
-    #   loop_control:
-    #     label: "{{ item }}"
+      ignore_errors: yes
 
     - name: get pools
       avi_api_session:
@@ -219,34 +139,16 @@
         timeout: 300
         path: pool
       register: poolResults
+      ignore_errors: yes
 
-    - name: "Delete pool config"
+    - name: Delete pool config
       avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: "delete"
         path: '{{"pool/" + item.uuid }}'
       loop: "{{ poolResults.obj.results }}"
-
-    # - name: Append Pool name to the list
-    #   set_fact:
-    #     listPoolName: "{{ listPoolName }} + [ '{{ item.name }}' ]"
-    #   loop: "{{ poolResults.obj.results }}"
-    #   loop_control:
-    #    label: "{{ item.name }}"
-    #
-    # - name: Delete pool
-    #   avi_pool:
-    #     avi_credentials: "{{ avi_credentials }}"
-    #     api_version: "{{ avi_credentials.api_version }}"
-    #     name: "{{ item }}"
-    #     cloud_ref: "/api/cloud/?name={{ avi_cloud.name }}"
-    #     tenant: "{{ item.tenant_ref | default('admin') }}"
-    #     tenant_ref: "/api/tenant?name={{ item.tenant_ref | default('admin') }}"
-    #     state: absent
-    #   loop: "{{ listPoolName }}"
-    #   loop_control:
-    #     label: "{{ item }}"
+      ignore_errors: yes
 
     - name: Get SE list
       avi_api_session:
@@ -255,31 +157,16 @@
         http_method: get
         path: serviceengine
       register: serviceengineResults
+      ignore_errors: yes
 
-    - name: "Delete SE"
+    - name: Delete SE
       avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: "delete"
         path: '{{"serviceengine/" + item.uuid }}'
       loop: "{{ serviceengineResults.obj.results }}"
-
-    # - name: Debug
-    #   debug:
-    #     msg: "{{ item.name }}"
-    #   loop: "{{ serviceengineResults.obj.results }}"
-    #   tags:
-    #     - debug
-    #
-    # - name: Delete All SEs
-    #   avi_serviceengine:
-    #     avi_credentials: "{{ avi_credentials }}"
-    #     api_version: "{{ avi_credentials.api_version }}"
-    #     name: "{{ item.name }}"
-    #     state: absent
-    #   loop: "{{ serviceengineResults.obj.results }}"
-    #   loop_control:
-    #     label: "{{ item.name }}"
+      ignore_errors: yes
 
     - name: Pausing for 120 seconds
       pause:
@@ -292,8 +179,9 @@
         http_method: get
         path: serviceenginegroup
       register: serviceenginegroupResults
+      ignore_errors: yes
 
-    - name: "Delete SE Groups"
+    - name: Delete SE Groups
       avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
@@ -301,87 +189,27 @@
         path: '{{"serviceenginegroup/" + item.uuid }}'
       loop: "{{ serviceenginegroupResults.obj.results }}"
       when: item.name != "Default-Group"
-
-    # - name: Debug
-    #   debug:
-    #     msg: "{{ item.name }}"
-    #   loop: "{{ serviceenginegroupResults.obj.results }}"
-    #   tags:
-    #     - debug
-    #
-    # - name: Delete se group (except Default Group)
-    #   avi_serviceenginegroup:
-    #     cloud_ref: "/api/cloud/?name={{ avi_cloud.name }}"
-    #     avi_credentials: "{{ avi_credentials }}"
-    #     api_version: "{{ avi_credentials.api_version }}"
-    #     name: "{{ item.name }}"
-    #     state: absent
-    #   loop: "{{ serviceenginegroupResults.obj.results }}"
-    #   loop_control:
-    #     label: "Modifying SE group called {{ item.name }}"
-    #   when: item.name != "Default-Group"
-
-    - name: Get Clouds list
-      avi_api_session:
-        avi_credentials: "{{ avi_credentials | default(omit) }}"
-        api_context: "{{ avi_api_context | default(omit) }}"
-        http_method: get
-        path: cloud
-      register: cloudResults
-
-    - name: Remove IPAM for each cloud (except Default-Cloud)
-      avi_api_session:
-        avi_credentials: "{{ avi_credentials | default(omit) }}"
-        api_context: "{{ avi_api_context | default(omit) }}"
-        http_method: patch
-        timeout: 300
-        path: cloud
-        data: {"delete":{"ipam_provider_ref":["item.ipam_provider_ref"]}}
-      loop: "{{ cloudResults.obj.results }}"
-      when: item.name != "Default-Cloud"
+      ignore_errors: yes
 
     - name: Get Ipam list
       avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: get
-        path: ipam
+        path: ipamdnsproviderprofile
       register: ipamResults
+      ignore_errors: yes
 
-    - name: Delete Ipam
+    - name: Remove Networks for each IPAM
       avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
-        http_method: "delete"
-        path: '{{"ipam/" + item.uuid }}'
+        http_method: put
+        timeout: 300
+        path: ipamdnsproviderprofile
+        data: {"name": "{{ item.name }}", "internal_profile": {"usable_network_refs": [] }}
       loop: "{{ ipamResults.obj.results }}"
-      ignore_errors: yes
-
-    - name: Revert cloud to No Access (for vmw)
-      avi_cloud:
-        avi_credentials: "{{ avi_credentials | default(omit) }}"
-        api_context: "{{ avi_api_context | default(omit) }}"
-        name: "{{ vmw.name }}"
-        vtype: CLOUD_NONE
-      when:
-        - vmw is defined
-
-    - name: Revert cloud to No Access (for nsxt)
-      avi_cloud:
-        avi_credentials: "{{ avi_credentials | default(omit) }}"
-        api_context: "{{ avi_api_context | default(omit) }}"
-        name: "{{ nsxt.name }}"
-        vtype: CLOUD_NONE
-      when:
-        - nsxt is defined
-
-    - name: Delete Avi IPAM
-      avi_ipamdnsproviderprofile:
-        avi_credentials: "{{ avi_credentials | default(omit) }}"
-        api_context: "{{ avi_api_context | default(omit) }}"
-        name: "{{ ipam.name | default('ipam-avi') }}"
-        type: IPAMDNS_TYPE_INTERNAL
-        state: absent
+      when: item.type == "IPAMDNS_TYPE_INTERNAL"
       ignore_errors: yes
 
     - name: Discover remaining configured networks
@@ -389,10 +217,9 @@
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: "get"
-        path: '{{ "network/?cloud_ref.name=" + vmw.name }}'
-      register: networks
+        path: network
+      register: networksResults
       ignore_errors: yes
-
 
     - name: Delete configured networks
       avi_api_session:
@@ -400,55 +227,8 @@
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: "delete"
         path: '{{"network/" + item.uuid }}'
-      loop: "{{ networks.obj.results }}"
+      loop: "{{ networksResults.obj.results }}"
       ignore_errors: yes
-
-    - name: Discover remaining configured networks (for nsxt)
-      avi_api_session:
-        avi_credentials: "{{ avi_credentials | default(omit) }}"
-        api_context: "{{ avi_api_context | default(omit) }}"
-        http_method: "get"
-        path: '{{ "network/?cloud_ref.name=" + nsxt.name }}'
-      register: networks
-      when:
-        - nsxt is defined
-
-    - name: Delete configured networks (for nsxt)
-      avi_api_session:
-        avi_credentials: "{{ avi_credentials | default(omit) }}"
-        api_context: "{{ avi_api_context | default(omit) }}"
-        http_method: "delete"
-        path: '{{"network/" + item.uuid }}'
-      loop: "{{ networks.obj.results }}"
-      when:
-        - nsxt is defined
-
-
-    #
-    #
-    # - name: Delete Network Vip Placement (for vmw)
-    #   avi_network:
-    #     avi_credentials: "{{ avi_credentials | default(omit) }}"
-    #     api_context: "{{ avi_api_context | default(omit) }}"
-    #     cloud_ref: "/api/cloud/?name={{ vmw.name }}"
-    #     tenant_ref: "/api/tenant?name={{ item.tenant_ref | default('admin') }}"
-    #     name: "{{ avi_network_vip.name }}"
-    #     state: absent
-    #   when:
-    #     - avi_network_vip is defined
-    #     - vmw is defined
-    #
-    # - name: Delete Network Vip Placement (for nsxt)
-    #   avi_network:
-    #     avi_credentials: "{{ avi_credentials | default(omit) }}"
-    #     api_context: "{{ avi_api_context | default(omit) }}"
-    #     cloud_ref: "/api/cloud/?name={{ vmw.name }}"
-    #     tenant_ref: "/api/tenant?name={{ item.tenant_ref | default('admin') }}"
-    #     name: "{{ avi_network_vip.name }}"
-    #     state: absent
-    #   when:
-    #     - avi_network_vip is defined
-    #     - nsxt is defined
 
     - name: Pausing for 20 seconds
       pause:
@@ -461,8 +241,46 @@
         http_method: get
         path: cloud
       register: cloudResults
+      ignore_errors: yes
 
-    - name: "Delete clouds"
+    - name: Revert cloud to No Access (for vmw or nsxt)
+      avi_cloud:
+        avi_credentials: "{{ avi_credentials | default(omit) }}"
+        api_context: "{{ avi_api_context | default(omit) }}"
+        name: "{{ item.name }}"
+        vtype: CLOUD_NONE
+      loop: "{{ cloudResults.obj.results }}"
+      when:
+        - item.vtype == "CLOUD_NSXT" or item.vtype == "CLOUD_VCENTER"
+      ignore_errors: yes
+
+    - name: Pausing for 10 seconds
+      pause:
+        seconds: 10
+      loop: "{{ cloudResults.obj.results }}"
+      when:
+        - item.vtype == "CLOUD_NSXT" or item.vtype == "CLOUD_VCENTER"
+      ignore_errors: yes
+
+    - name: Discover remaining configured networks
+      avi_api_session:
+        avi_credentials: "{{ avi_credentials | default(omit) }}"
+        api_context: "{{ avi_api_context | default(omit) }}"
+        http_method: "get"
+        path: network
+      register: networksResults
+      ignore_errors: yes
+
+    - name: Delete configured networks
+      avi_api_session:
+        avi_credentials: "{{ avi_credentials | default(omit) }}"
+        api_context: "{{ avi_api_context | default(omit) }}"
+        http_method: "delete"
+        path: '{{"network/" + item.uuid }}'
+      loop: "{{ networksResults.obj.results }}"
+      ignore_errors: yes
+
+    - name: Delete clouds
       avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
@@ -470,15 +288,13 @@
         path: '{{"cloud/" + item.uuid }}'
       loop: "{{ cloudResults.obj.results }}"
       when: item.name != "Default-Cloud"
+      ignore_errors: yes
 
-
-    # - name: Delete Avi Cloud
-    #   avi_cloud:
-    #     avi_credentials: "{{ avi_credentials | default(omit) }}"
-    #     api_context: "{{ avi_api_context | default(omit) }}"
-    #     name: "{{ avi_cloud.name }}"
-    #     state: absent
-    #     vtype: "{{ avi_cloud.vtype }}"
-    #   when: avi_cloud is defined
-    #   tags: cloud
-    #   ignore_errors: yes
+    - name: Delete IPAM and DNS Profile
+      avi_api_session:
+        avi_credentials: "{{ avi_credentials | default(omit) }}"
+        api_context: "{{ avi_api_context | default(omit) }}"
+        http_method: "delete"
+        path: '{{"ipamdnsproviderprofile/" + item.uuid }}'
+      loop: "{{ ipamResults.obj.results }}"
+      ignore_errors: yes
