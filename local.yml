@@ -31,7 +31,6 @@
         path: '{{"gslbservice/" + item.uuid }}'
       ignore_errors: yes
       loop: "{{ gslbserviceResults.obj.results }}"
-      ignore_errors: yes
 
     - name: Get GSLB profile
       avi_api_session:
@@ -48,7 +47,6 @@
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: "delete"
         path: '{{"gslbgeodbprofile/" + item.uuid }}'
-      ignore_errors: yes
       loop: "{{ gslbgeodbprofileResults.obj.results }}"
       ignore_errors: yes
 
@@ -67,7 +65,6 @@
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: "delete"
         path: '{{"gslb/" + item.uuid }}'
-      ignore_errors: yes
       loop: "{{ gslbResults.obj.results }}"
       ignore_errors: yes
 
