@@ -346,28 +346,26 @@
         name: "{{ ipam.name | default('ipam-avi') }}"
         type: IPAMDNS_TYPE_INTERNAL
         state: absent
-      when:
-        - vmw is defined or nsxt is defined
+        ignore_errors: yes
 
-    - name: Discover remaining configured networks (for vmw)
+    - name: Discover remaining configured networks
       avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: "get"
         path: '{{ "network/?cloud_ref.name=" + vmw.name }}'
       register: networks
-      when:
-        - vmw is defined
+      ignore_errors: yes
 
-    - name: Delete configured networks (for vmw)
+
+    - name: Delete configured networks
       avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
         http_method: "delete"
         path: '{{"network/" + item.uuid }}'
       loop: "{{ networks.obj.results }}"
-      when:
-        - vmw is defined or nsxt is defined
+      ignore_errors: yes
 
     - name: Discover remaining configured networks (for nsxt)
       avi_api_session:
