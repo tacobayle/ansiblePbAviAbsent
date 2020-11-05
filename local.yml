@@ -321,6 +321,42 @@
     #     label: "Modifying SE group called {{ item.name }}"
     #   when: item.name != "Default-Group"
 
+    - name: Get Clouds list
+      avi_api_session:
+        avi_credentials: "{{ avi_credentials | default(omit) }}"
+        api_context: "{{ avi_api_context | default(omit) }}"
+        http_method: get
+        path: cloud
+      register: cloudResults
+
+    - name: Remove IPAM for each cloud (except Default-Cloud)
+      avi_api_session:
+        avi_credentials: "{{ avi_credentials | default(omit) }}"
+        api_context: "{{ avi_api_context | default(omit) }}"
+        http_method: patch
+        timeout: 300
+        path: cloud
+        data: {"delete":{"ipam_provider_ref":["item.ipam_provider_ref"]}}
+      loop: "{{ cloudResults.obj.results }}"
+      when: item.name != "Default-Cloud"
+
+    - name: Get Ipam list
+      avi_api_session:
+        avi_credentials: "{{ avi_credentials | default(omit) }}"
+        api_context: "{{ avi_api_context | default(omit) }}"
+        http_method: get
+        path: ipam
+      register: ipamResults
+
+    - name: Delete Ipam
+      avi_api_session:
+        avi_credentials: "{{ avi_credentials | default(omit) }}"
+        api_context: "{{ avi_api_context | default(omit) }}"
+        http_method: "delete"
+        path: '{{"ipam/" + item.uuid }}'
+      loop: "{{ ipamResults.obj.results }}"
+      ignore_errors: yes
+
     - name: Revert cloud to No Access (for vmw)
       avi_cloud:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
