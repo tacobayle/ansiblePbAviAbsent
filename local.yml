@@ -261,6 +261,8 @@
         name: "{{ item.name }}"
         vtype: CLOUD_NONE
       loop: "{{ cloudResults.obj.results }}"
+      loop_control:
+        label: "{{ item.name }}"
       when:
         - item.vtype == "CLOUD_VCENTER"
       ignore_errors: yes
@@ -287,9 +289,6 @@
     - name: Pausing for 10 seconds
       pause:
         seconds: 10
-      loop: "{{ cloudResults.obj.results }}"
-      when:
-        - item.vtype == "CLOUD_NSXT" or item.vtype == "CLOUD_VCENTER"
       ignore_errors: yes
 
     - name: Discover remaining configured networks
