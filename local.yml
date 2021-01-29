@@ -214,7 +214,7 @@
         http_method: put
         timeout: 300
         path: ipamdnsproviderprofile
-        data: {"name": "{{ item.name }}", "internal_profile": {"usable_network_refs": [] }}
+        data: {"name": "{{ item.name }}", "internal_profile": {"usable_networks": [] }}
       loop: "{{ ipamResults.obj.results }}"
       loop_control:
         label: "{{ item.name }}"
