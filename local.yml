@@ -254,7 +254,7 @@
       register: cloudResults
       ignore_errors: yes
 
-    - name: Revert cloud to No Access (for vmw or nsxt)
+    - name: Revert cloud to No Access (for vmw)
       avi_cloud:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
@@ -262,7 +262,26 @@
         vtype: CLOUD_NONE
       loop: "{{ cloudResults.obj.results }}"
       when:
-        - item.vtype == "CLOUD_NSXT" or item.vtype == "CLOUD_VCENTER"
+        - item.vtype == "CLOUD_VCENTER"
+      ignore_errors: yes
+
+    - name: Get Vcenter server - NSXT
+      avi_api_session:
+        avi_credentials: "{{ avi_credentials | default(omit) }}"
+        api_context: "{{ avi_api_context | default(omit) }}"
+        http_method: get
+        path: vcenterserver
+      register: vcenter_servers
+
+    - name: Delete Vcenter server - NSXT
+      avi_api_session:
+        avi_credentials: "{{ avi_credentials | default(omit) }}"
+        api_context: "{{ avi_api_context | default(omit) }}"
+        http_method: "delete"
+        path: '{{"vcenterserver/" + item.uuid }}'
+      loop: "{{ vcenter_servers.obj.results }}"
+      loop_control:
+        label: "{{ item.name }}"
       ignore_errors: yes
 
     - name: Pausing for 10 seconds
