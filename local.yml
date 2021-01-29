@@ -107,6 +107,8 @@
         http_method: "delete"
         path: '{{"virtualservice/" + item.uuid }}'
       loop: "{{ virtualserviceResults.obj.results }}"
+      loop_control:
+        label: "{{ item.name }}"
       ignore_errors: yes
 
     - name: get vsvip
@@ -126,6 +128,8 @@
         http_method: "delete"
         path: '{{"vsvip/" + item.uuid }}'
       loop: "{{ vsvipResults.obj.results }}"
+      loop_control:
+        label: "{{ item.name }}"
       ignore_errors: yes
 
     - name: get pools
@@ -145,6 +149,8 @@
         http_method: "delete"
         path: '{{"pool/" + item.uuid }}'
       loop: "{{ poolResults.obj.results }}"
+      loop_control:
+        label: "{{ item.name }}"
       ignore_errors: yes
 
     - name: Get SE list
@@ -163,6 +169,8 @@
         http_method: "delete"
         path: '{{"serviceengine/" + item.uuid }}'
       loop: "{{ serviceengineResults.obj.results }}"
+      loop_control:
+        label: "{{ item.name }}"
       ignore_errors: yes
 
     - name: Pausing for 120 seconds
@@ -185,6 +193,8 @@
         http_method: "delete"
         path: '{{"serviceenginegroup/" + item.uuid }}'
       loop: "{{ serviceenginegroupResults.obj.results }}"
+      loop_control:
+        label: "{{ item.name }}"
       when: item.name != "Default-Group"
       ignore_errors: yes
 
@@ -206,6 +216,8 @@
         path: ipamdnsproviderprofile
         data: {"name": "{{ item.name }}", "internal_profile": {"usable_network_refs": [] }}
       loop: "{{ ipamResults.obj.results }}"
+      loop_control:
+        label: "{{ item.name }}"
       when: item.type == "IPAMDNS_TYPE_INTERNAL"
       ignore_errors: yes
 
@@ -225,6 +237,8 @@
         http_method: "delete"
         path: '{{"network/" + item.uuid }}'
       loop: "{{ networksResults.obj.results }}"
+      loop_control:
+        label: "{{ item.name }}"
       ignore_errors: yes
 
     - name: Pausing for 20 seconds
@@ -275,6 +289,8 @@
         http_method: "delete"
         path: '{{"network/" + item.uuid }}'
       loop: "{{ networksResults.obj.results }}"
+      loop_control:
+        label: "{{ item.name }}"
       ignore_errors: yes
 
     - name: Delete clouds
@@ -284,6 +300,8 @@
         http_method: "delete"
         path: '{{"cloud/" + item.uuid }}'
       loop: "{{ cloudResults.obj.results }}"
+      loop_control:
+        label: "{{ item.name }}"
       when: item.name != "Default-Cloud"
       ignore_errors: yes
 
@@ -294,4 +312,6 @@
         http_method: "delete"
         path: '{{"ipamdnsproviderprofile/" + item.uuid }}'
       loop: "{{ ipamResults.obj.results }}"
+      loop_control:
+        label: "{{ item.name }}"
       ignore_errors: yes
