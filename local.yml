@@ -132,6 +132,27 @@
         label: "{{ item.name }}"
       ignore_errors: yes
 
+    - name: get http policies
+      avi_api_session:
+        avi_credentials: "{{ avi_credentials | default(omit) }}"
+        api_context: "{{ avi_api_context | default(omit) }}"
+        http_method: get
+        timeout: 300
+        path: httppolicyset
+      register: httppolicysetResults
+      ignore_errors: yes
+
+    - name: Delete http policies
+      avi_api_session:
+        avi_credentials: "{{ avi_credentials | default(omit) }}"
+        api_context: "{{ avi_api_context | default(omit) }}"
+        http_method: "delete"
+        path: '{{"httppolicyset/" + item.uuid }}'
+      loop: "{{ httppolicysetResults.obj.results }}"
+      loop_control:
+        label: "{{ item.name }}"
+      ignore_errors: yes
+
     - name: get pools
       avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
