@@ -153,6 +153,48 @@
         label: "{{ item.name }}"
       ignore_errors: yes
 
+    - name: get l4 policies
+      avi_api_session:
+        avi_credentials: "{{ avi_credentials | default(omit) }}"
+        api_context: "{{ avi_api_context | default(omit) }}"
+        http_method: get
+        timeout: 300
+        path: l4policyset
+      register: l4policysetResults
+      ignore_errors: yes
+
+    - name: Delete l4 policies
+      avi_api_session:
+        avi_credentials: "{{ avi_credentials | default(omit) }}"
+        api_context: "{{ avi_api_context | default(omit) }}"
+        http_method: "delete"
+        path: '{{"l4policyset/" + item.uuid }}'
+      loop: "{{ l4policysetResults.obj.results }}"
+      loop_control:
+        label: "{{ item.name }}"
+      ignore_errors: yes
+
+    - name: get vs datascript
+      avi_api_session:
+        avi_credentials: "{{ avi_credentials | default(omit) }}"
+        api_context: "{{ avi_api_context | default(omit) }}"
+        http_method: get
+        timeout: 300
+        path: vsdatascriptset
+      register: vsdatascriptsetResults
+      ignore_errors: yes
+
+    - name: Delete vs datascript
+      avi_api_session:
+        avi_credentials: "{{ avi_credentials | default(omit) }}"
+        api_context: "{{ avi_api_context | default(omit) }}"
+        http_method: "delete"
+        path: '{{"vsdatascriptset/" + item.uuid }}'
+      loop: "{{ vsdatascriptsetResults.obj.results }}"
+      loop_control:
+        label: "{{ item.name }}"
+      ignore_errors: yes
+
     - name: get pools
       avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
