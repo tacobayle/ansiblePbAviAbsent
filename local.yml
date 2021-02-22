@@ -219,7 +219,7 @@
       when: item.name != "Default-Group"
       ignore_errors: yes
 
-    - name: Delete SE group (vCenters dependencies)
+    - name: Delete SE group Default-Group - vCenters dependencies
       avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
         api_context: "{{ avi_api_context | default(omit) }}"
