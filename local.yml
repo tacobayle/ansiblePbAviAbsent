@@ -195,6 +195,27 @@
         label: "{{ item.name }}"
       ignore_errors: yes
 
+    - name: get pool groups
+      avi_api_session:
+        avi_credentials: "{{ avi_credentials | default(omit) }}"
+        api_context: "{{ avi_api_context | default(omit) }}"
+        http_method: get
+        timeout: 300
+        path: poolgroup
+      register: poolgroupResults
+      ignore_errors: yes
+
+    - name: Delete pool group config
+      avi_api_session:
+        avi_credentials: "{{ avi_credentials | default(omit) }}"
+        api_context: "{{ avi_api_context | default(omit) }}"
+        http_method: "delete"
+        path: '{{"poolgroup/" + item.uuid }}'
+      loop: "{{ poolgroupResults.obj.results }}"
+      loop_control:
+        label: "{{ item.name }}"
+      ignore_errors: yes
+
     - name: get pools
       avi_api_session:
         avi_credentials: "{{ avi_credentials | default(omit) }}"
