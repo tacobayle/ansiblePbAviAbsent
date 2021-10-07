@@ -283,9 +283,9 @@
         label: "{{ item.name }}"
       ignore_errors: yes
 
-    - name: Pausing for 120 seconds
+    - name: Pausing for 60 seconds
       pause:
-        minutes: 2
+        minutes: 1
 
     - name: Get SE group list
       community.network.avi_api_session:
